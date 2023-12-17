@@ -1,55 +1,65 @@
-import { Box, Heading, Spinner, Text } from "@chakra-ui/react"
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { Box, Heading, Spinner, Select, Text } from "@chakra-ui/react";
 import { listUsers } from "./usersApi";
 import { RootState, UserPublic } from "../model/common";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 const UserList = () => {
-  const {id_receiver} = useParams();
+  const { id_receiver } = useParams();
   const [users, setUsers] = useState<UserPublic[]>([]);
   const [loading, setLoading] = useState(true);
-  const session = useSelector((state: RootState)=> state.session.session);
+  const session = useSelector((state: RootState) => state.session.session);
   const navigate = useNavigate();
-  const {id} = useParams();
+  const { id } = useParams();
   const receiver_id = (id == null || id == undefined ? -1 : id) as number;
+  const [selectedUser, setSelectedUser] = useState<string | number>("");
 
   useEffect(() => {
-
-    console.log(id_receiver)
     const fetchUsers = async () => {
       try {
         const usersData = await listUsers();
-        console.log(usersData);
         setUsers(usersData);
-        const isReceiverInUsers = usersData.some((user) => user.user_id === receiver_id);
+        const isReceiverInUsers = usersData.some(
+          (user) => user.user_id === receiver_id
+        );
 
         if (!isReceiverInUsers) {
-          navigate("/messages")
+          navigate("/messages");
         }
       } catch (error) {
-        console.error("Erreur lors de la récupération des utilisateurs:", error);
+        console.error(
+          "Erreur lors de la récupération des utilisateurs:",
+          error
+        );
       } finally {
-        setLoading(false); // Met fin au chargement, que ce soit réussi ou non
+        setLoading(false);
       }
     };
 
     fetchUsers();
   }, []);
 
+  const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedUser(event.target.value);
+  };
 
-  const handleUserClick = (userId: number) => {
-    // Vous pouvez ajouter le comportement que vous souhaitez lorsqu'un utilisateur est cliqué
-    navigate(`/messages/user/${userId}`);
+  const handleUserClick = () => {
+    if (selectedUser !== "") {
+      // Handle the selected user, e.g., navigate to a specific user's messages
+      navigate(`/messages/user/${selectedUser}`);
+    }
   };
 
   return (
-    <Box
-     width={['80%', '25%']}
-     >
+    <Box width={['80%', '70%']}>
       {loading ? (
-        // Afficher un Spinner pendant le chargement
-        <Box display="flex" justifyContent="center" alignItems="center" height="30vh">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="30vh"
+        >
           <Spinner size="xl" />
         </Box>
       ) : (
@@ -58,45 +68,42 @@ const UserList = () => {
             fontSize="2xl"
             mb="4"
             padding="4"
-            color="teal.500"
+            color="#13262F"
             borderBottom="1px solid teal"
           >
-            Utilisateurs
+            UTILISATEURS: 
           </Heading>
-          <ul>
-            {users.map((user) =>
-            user.user_id!==session.id
-            &&(
-
-              <Box
-                key={user.user_id}
-                onClick={() => handleUserClick(user.user_id)}
-
-                backgroundColor={ user.user_id == receiver_id ? "gray.300" : "gray.100"}
-                p="3"
-                mb="2"
-                borderRadius="5px"
-                cursor="pointer"
-                _hover={{ backgroundColor: "blue.100" }}
-              >
-                <Text fontSize="lg" fontWeight="bold" color="blue.500">
-                  {user.username}
-                </Text>
-                <Text fontSize="sm" color="gray.500">
-                  {user.last_login}
-                </Text>
-              </Box>
-            ))}
-          </ul>
-          {/* <Heading
-            fontSize="2xl"
+          <Select
+            value={selectedUser}
+            onChange={handleUserChange}
             mb="4"
-            padding="4"
-            color="teal.500"
-            borderBottom="1px solid teal"
+            color="black"
           >
-            Salons
-          </Heading> */}
+            <option value="" disabled>
+              Sélectionnez un utilisateur
+            </option>
+            {users.map((user) =>
+              user.user_id !== session.id ? (
+                <option key={user.user_id} value={user.user_id}>
+                  {user.username}
+                </option>
+              ) : null
+            )}
+          </Select>
+          <Box
+            onClick={handleUserClick}
+            backgroundColor={receiver_id ? "gray.300" : "gray.100"}
+            p="3"
+            mb="2"
+            borderRadius="5px"
+            cursor="pointer"
+            _hover={{ backgroundColor: "gray.100" }}
+          >
+            <Text fontSize="lg" fontWeight="bold" color="black">
+              {selectedUser !== "" &&
+                users.find((user) => user.user_id === +selectedUser)?.username}
+            </Text>
+          </Box>
         </Box>
       )}
     </Box>

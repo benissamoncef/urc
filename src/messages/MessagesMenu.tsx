@@ -11,10 +11,13 @@ const MessagesMenu = () => {
   const {id} = useParams();
 
   return (
-    <Box ml='100' mt='0'>
-      <Box><UsersList/><Chat/></Box>
-
-    </Box>
+    <>
+      <div style={{display : "flex" , flexDirection: "column", alignItems: "center" }}>
+        <UsersList/>
+        <Chat/>
+      </div>
+      
+    </>
   )
 }
 
