@@ -22,9 +22,7 @@ const theme = extendTheme({
   colors: {
     brand: {
       50: '#f9fafb',
-      // Add more color shades as needed
-      // ...
-      500: '#000000', // Change this to your desired color
+      500: '#13262F', // Change this to your desired color
     },
   },
 });

@@ -12,7 +12,7 @@ const MessagesMenu = () => {
 
   return (
     <>
-      <div style={{display : "flex" , flexDirection: "column", alignItems: "center" }}>
+      <div style={{display : "flex" , flexDirection: "column", alignItems: "center"}}>
         <UsersList/>
         <Chat/>
       </div>
